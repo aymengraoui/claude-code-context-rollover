@@ -7,7 +7,7 @@ Session A ──soft──▶ preparing ──prepare──▶ ready ──turn 
                                               └──hard, mid-turn──▶ drain ──┘
 ```
 
-It publishes its whole lifecycle as shared state, which the [Cockpit](../claude-code-cockpit) sidebar draws as a **CONTEXT ROLLOVER** block.
+It publishes its whole lifecycle as shared state, which the [Cockpit](https://github.com/aymengraoui/claude-code-cockpit) sidebar draws as a **CONTEXT ROLLOVER** block.
 
 ## Install
 
