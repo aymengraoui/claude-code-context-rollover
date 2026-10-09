@@ -1,0 +1,5 @@
+node_modules/
+# Written by the engine once the mod has loaded, for the editor only.
+.claude-plugin/types/
+.DS_Store
+Thumbs.db

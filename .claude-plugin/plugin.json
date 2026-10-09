@@ -1,0 +1,178 @@
+{
+  "name": "context-rollover",
+  "version": "0.1.0",
+  "description": "Rolls long-running (multi-agent) Claude Code work over into fresh sessions before the context gets too large: persists a compact, verified continuation of the project state, starts a genuinely fresh session and resumes the highest-priority work. Publishes its lifecycle as shared state for the Cockpit sidebar.",
+  "author": {
+    "name": "Aymen Graoui",
+    "url": "https://github.com/aymengraoui"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "mod",
+    "context",
+    "rollover",
+    "handoff",
+    "agents"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "description": "Monitor context usage and roll over automatically.",
+      "default": true
+    },
+    "softLimit": {
+      "type": "number",
+      "title": "Soft limit (tokens)",
+      "description": "Context tokens at which the rollover starts preparing: the model is told and state is gathered.",
+      "default": 180000
+    },
+    "prepareLimit": {
+      "type": "number",
+      "title": "Prepare limit (tokens)",
+      "description": "Context tokens at which a draft continuation is saved, new agents are held, and the session rolls over at the next turn end.",
+      "default": 190000
+    },
+    "hardLimit": {
+      "type": "number",
+      "title": "Hard limit (tokens)",
+      "description": "Context tokens at which new main-loop work is refused and the turn is wound down so the rollover happens now. Clamped to 90% of the model's window when that is smaller.",
+      "default": 200000
+    },
+    "automaticRestart": {
+      "type": "boolean",
+      "title": "Automatic restart",
+      "description": "Start the fresh session without asking. Off: persist the continuation, then wait for you to run /clear.",
+      "default": true
+    },
+    "restartMode": {
+      "type": "string",
+      "title": "Restart mode",
+      "description": "clear: /clear in this terminal (same process, new session id, empty conversation). new-terminal: open a new terminal running claude, then exit this one.",
+      "default": "clear",
+      "options": [
+        "clear",
+        "new-terminal"
+      ]
+    },
+    "continuationDir": {
+      "type": "string",
+      "title": "Continuation folder",
+      "description": "Where continuations are kept. Empty: ~/.claude/context-rollover/<project>. A relative path is under the project.",
+      "default": ""
+    },
+    "maxContinuationTokens": {
+      "type": "number",
+      "title": "Continuation size limit (tokens)",
+      "description": "The continuation is trimmed, lowest-priority sections first, to fit this.",
+      "default": 10000
+    },
+    "rolloverTimeoutMs": {
+      "type": "number",
+      "title": "Rollover timeout (ms)",
+      "description": "An attempt that takes longer is abandoned and retried.",
+      "default": 600000
+    },
+    "maxRetries": {
+      "type": "number",
+      "title": "Retries",
+      "description": "How many times a failed attempt is retried (with exponential backoff).",
+      "default": 3
+    },
+    "retryDelayMs": {
+      "type": "number",
+      "title": "Retry delay (ms)",
+      "description": "The first retry's delay; each further one doubles it.",
+      "default": 5000
+    },
+    "logLevel": {
+      "type": "string",
+      "title": "Log level",
+      "description": "Lifecycle lines in the transcript at info; details in the debug log at debug.",
+      "default": "info",
+      "options": [
+        "error",
+        "warn",
+        "info",
+        "debug"
+      ]
+    },
+    "agentPolicy": {
+      "type": "string",
+      "title": "Agents at rollover",
+      "description": "drain: wait for running agents to finish (up to the drain timeout). record: record them and roll over at once.",
+      "default": "drain",
+      "options": [
+        "drain",
+        "record"
+      ]
+    },
+    "agentDrainTimeoutMs": {
+      "type": "number",
+      "title": "Agent drain timeout (ms)",
+      "description": "How long a drain waits for running agents before recording them for re-dispatch.",
+      "default": 300000
+    },
+    "notifyAgents": {
+      "type": "boolean",
+      "title": "Tell agents to wrap up",
+      "description": "Message running agents when the drain starts.",
+      "default": true
+    },
+    "blockNewAgents": {
+      "type": "boolean",
+      "title": "Hold new agents",
+      "description": "Refuse new Agent spawns from the prepare limit on; the model records the task instead.",
+      "default": true
+    },
+    "autoCommit": {
+      "type": "boolean",
+      "title": "Auto-commit",
+      "description": "Commit the working tree before restarting. Never onto protected or detached branches, over conflicts or mid-merge.",
+      "default": false
+    },
+    "protectedBranches": {
+      "type": "string",
+      "title": "Protected branches",
+      "description": "Comma-separated branches auto-commit never commits to.",
+      "default": "main,master"
+    },
+    "gitSafetyRef": {
+      "type": "boolean",
+      "title": "Git safety ref",
+      "description": "Keep a ref (refs/context-rollover/<id>) to a stash-style commit of the working tree; touches neither tree nor index.",
+      "default": true
+    },
+    "resumeOnStartup": {
+      "type": "string",
+      "title": "Unrestored continuation at startup",
+      "description": "ask: put /rollover resume in the prompt box. auto: restore it. off: only show it.",
+      "default": "ask",
+      "options": [
+        "ask",
+        "auto",
+        "off"
+      ]
+    },
+    "useModelSummary": {
+      "type": "boolean",
+      "title": "Targeted model summary",
+      "description": "Ask the session's model (a cached fork) for intent, decisions and next steps the repository cannot hold.",
+      "default": true
+    },
+    "notifyModel": {
+      "type": "boolean",
+      "title": "Tell the model",
+      "description": "Tell the model when the soft and prepare limits pass.",
+      "default": true
+    },
+    "staleAfterHours": {
+      "type": "number",
+      "title": "Stale after (hours)",
+      "description": "A continuation older than this is no longer offered.",
+      "default": 24
+    }
+  }
+}
